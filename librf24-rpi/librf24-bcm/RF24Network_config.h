@@ -10,12 +10,6 @@
 #ifndef __RF24_CONFIG_H__
 #define __RF24_CONFIG_H__
 
-#if ARDUINO < 100
-#include <WProgram.h>
-#else
-#include <Arduino.h>
-#endif
-
 #include <stddef.h>
 
 // Stuff that is normally provided by Arduino
