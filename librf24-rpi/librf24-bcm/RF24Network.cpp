@@ -5,7 +5,17 @@
  modify it under the terms of the GNU General Public License
  version 2 as published by the Free Software Foundation.
  */
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+#include <iostream>  
+#include <algorithm>
 #include "RF24Network_config.h"
 #include "RF24.h"
 #include "RF24Network.h"
@@ -30,9 +40,6 @@ void RF24Network::begin(uint8_t _channel, uint16_t _node_address )
 
   node_address = _node_address;
 
-  if ( ! radio.isValid() )
-    return;
-
   // Set up the radio the way we want it to look
   radio.setChannel(_channel);
   radio.setDataRate(RF24_1MBPS);
@@ -47,8 +54,6 @@ void RF24Network::begin(uint8_t _channel, uint16_t _node_address )
     radio.openReadingPipe(i,pipe_address(_node_address,i));
   radio.startListening();
 
-  // Spew debugging state about the radio
-  radio.printDetails();
 }
 
 /******************************************************************/
@@ -57,10 +62,10 @@ void RF24Network::update(void)
 {
   // if there is data ready
   uint8_t pipe_num;
-  while ( radio.isValid() && radio.available(&pipe_num) )
+  while ( radio.available(&pipe_num) )
   {
     // Dump the payloads until we've gotten everything
-    boolean done = false;
+    bool done = false;
     while (!done)
     {
       // Fetch the payload, and see if this was the last one.
@@ -168,18 +173,14 @@ size_t RF24Network::read(RF24NetworkHeader& header,void* message, size_t maxlen)
     // Move the pointer back one in the queue 
     next_frame -= frame_size;
     uint8_t* frame = next_frame;
-     
+      
+    // How much buffer size should we actually copy?
+    bufsize = std::min(maxlen,frame_size-sizeof(RF24NetworkHeader));
+
+    // Copy the next available frame from the queue into the provided buffer
     memcpy(&header,frame,sizeof(RF24NetworkHeader));
-   
-    if (maxlen > 0)
-    {
-      // How much buffer size should we actually copy?
-      bufsize = min(maxlen,frame_size-sizeof(RF24NetworkHeader));
-
-      // Copy the next available frame from the queue into the provided buffer
-      memcpy(message,frame+sizeof(RF24NetworkHeader),bufsize);
-    }
-
+    memcpy(message,frame+sizeof(RF24NetworkHeader),bufsize);
+    
     IF_SERIAL_DEBUG(printf_P(PSTR("%lu: NET Received %s\n\r"),millis(),header.toString()));
   }
 
@@ -196,7 +197,7 @@ bool RF24Network::write(RF24NetworkHeader& header,const void* message, size_t le
   // Build the full frame to send
   memcpy(frame_buffer,&header,sizeof(RF24NetworkHeader));
   if (len)
-    memcpy(frame_buffer + sizeof(RF24NetworkHeader),message,min(frame_size-sizeof(RF24NetworkHeader),len));
+    memcpy(frame_buffer + sizeof(RF24NetworkHeader),message,std::min(frame_size-sizeof(RF24NetworkHeader),len));
 
   IF_SERIAL_DEBUG(printf_P(PSTR("%lu: NET Sending %s\n\r"),millis(),header.toString()));
   if (len)
@@ -256,12 +257,7 @@ bool RF24Network::write(uint16_t to_node)
   radio.stopListening();
 
   // Put the frame on the pipe
-  int retries = 3;
-  do
-  {
-    ok = write_to_pipe( send_node, send_pipe );
-  }
-  while (!ok && retries--);
+  ok = write_to_pipe( send_node, send_pipe );
 
       // NOT NEEDED anymore.  Now all reading pipes are open to start.
 #if 0
@@ -308,7 +304,7 @@ bool RF24Network::write_to_pipe( uint16_t node, uint8_t pipe )
 const char* RF24NetworkHeader::toString(void) const
 {
   static char buffer[45];
-  snprintf_P(buffer,sizeof(buffer),PSTR("id %04x from 0%o to 0%o type %c"),id,from_node,to_node,type);
+  //snprintf_P(buffer,sizeof(buffer),PSTR("id %04x from 0%o to 0%o type %c"),id,from_node,to_node,type);
   return buffer;
 }
 

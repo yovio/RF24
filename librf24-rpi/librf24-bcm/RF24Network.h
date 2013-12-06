@@ -15,9 +15,12 @@
  * Class declaration for RF24Network
  */
 
-#include <stddef.h>
 #include <stdint.h>
-
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+#include <sys/time.h>
+#include <stddef.h>
 class RF24;
 
 /**
@@ -38,7 +41,6 @@ struct RF24NetworkHeader
   /**
    * Default constructor
    *
-   
    * Simply constructs a blank header
    */
   RF24NetworkHeader() {}

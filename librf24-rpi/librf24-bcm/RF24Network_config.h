@@ -17,7 +17,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-extern HardwareSPI SPI;
 #define _BV(x) (1<<(x))
 #endif
 
