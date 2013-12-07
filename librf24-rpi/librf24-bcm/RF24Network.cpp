@@ -44,6 +44,7 @@ void RF24Network::begin(uint8_t _channel, uint16_t _node_address )
   radio.setChannel(_channel);
   radio.setDataRate(RF24_1MBPS);
   radio.setCRCLength(RF24_CRC_16);
+  radio.setPayloadSize(frame_size);
 
   // Setup our address helper cache
   setup_address();

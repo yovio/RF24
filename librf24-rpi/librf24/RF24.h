@@ -19,6 +19,7 @@
 //#include "lib/RF24/compatibility.h"
 #include "compatibility.h"
 
+#define MAX_PAYLOAD_SIZE 128
 /**
  * Power Amplifier level.
  *
@@ -393,7 +394,7 @@ public:
    *
    * This implementation uses a pre-stablished fixed payload size for all
    * transmissions.  If this method is never called, the driver will always
-   * transmit the maximum payload size (32 bytes), no matter how much
+   * transmit the maximum payload size (128 bytes), no matter how much
    * was sent to write().
    *
    * @todo Implement variable-sized payloads feature

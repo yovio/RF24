@@ -291,8 +291,7 @@ void RF24::setChannel(uint8_t channel)
 
 void RF24::setPayloadSize(uint8_t size)
 {
-  const uint8_t max_payload_size = 32;
-  payload_size = min(size,max_payload_size);
+  payload_size = min(size,MAX_PAYLOAD_SIZE);
 }
 
 /****************************************************************************/
@@ -715,9 +714,8 @@ void RF24::openWritingPipe(uint64_t value)
 
   write_register(RX_ADDR_P0, reinterpret_cast<uint8_t*>(&value), 5);
   write_register(TX_ADDR, reinterpret_cast<uint8_t*>(&value), 5);
-
-  const uint8_t max_payload_size = 32;
-  write_register(RX_PW_P0,min(payload_size,max_payload_size));
+  
+  write_register(RX_PW_P0,min(payload_size,MAX_PAYLOAD_SIZE));
 }
 
 /****************************************************************************/
@@ -830,8 +828,7 @@ void RF24::writeAckPayload(uint8_t pipe, const void* buf, uint8_t len)
   const uint8_t* current = reinterpret_cast<const uint8_t*>(buf);
 
   bcm2835_spi_transfer( W_ACK_PAYLOAD | ( pipe & 0b111 ) );
-  const uint8_t max_payload_size = 32;
-  uint8_t data_len = min(len,max_payload_size);
+  uint8_t data_len = min(len,MAX_PAYLOAD_SIZE);
   while ( data_len-- )
     bcm2835_spi_transfer(*current++);
 }
