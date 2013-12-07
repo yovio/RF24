@@ -19,7 +19,7 @@
 //#include "lib/RF24/compatibility.h"
 #include "compatibility.h"
 
-#define MAX_PAYLOAD_SIZE 128
+#define MAX_PAYLOAD_SIZE 32
 /**
  * Power Amplifier level.
  *

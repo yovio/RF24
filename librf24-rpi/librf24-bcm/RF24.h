@@ -23,7 +23,7 @@
 #include "RF24_config.h"
 #include "./bcm2835.h"
 
-#define MAX_PAYLOAD_SIZE 128
+#define MAX_PAYLOAD_SIZE 32
 
 /**
  * Power Amplifier level.
